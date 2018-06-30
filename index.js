@@ -109,7 +109,7 @@ app.post('/users/login', (request, response) => {
             if( queryRows.length < 1){
                 response.send(401);
             }else{
-                let db_pass_hash = queryRows[0].password_hash;
+                let db_pass_hash = queryRows[0].password;
                 let request_pass_hash = sha256( request.body.password );
                 if( db_pass_hash ===  request_pass_hash ){
                     response.cookie('logged_in', 'true');
