@@ -19,7 +19,7 @@ class New extends React.Component {
               <input name="name" type="text" placeholder="NEW POKEMON NAME"/>
             </div>
             <div className="pokemon-attribute">
-              <input name="img" type="text" placeholder="NEW POKEMON IMAGE LINK"/>
+              <input name="img" type="text" placeholder="POKEMON IMAGE LINK"/>
             </div>
             <div className="pokemon-attribute">
               <input name="height" type="text" placeholder="NEW POKEMON HEIGHT"/>

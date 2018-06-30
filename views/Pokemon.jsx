@@ -7,39 +7,35 @@ class Pokemon extends React.Component {
         <head />
         <body>
           <div>
+            <img src={this.props.pokemon.img}/>
+            <h2>{this.props.pokemon.name}</h2>
             <ul className="pokemon-list">
               <li className="pokemon-attribute">
-                id: {this.props.pokemon.id}
+                PokeID: {this.props.pokemon.id}
               </li>
               <li className="pokemon-attribute">
-                num: {this.props.pokemon.num}
+                Pokemon No.: {this.props.pokemon.num}
               </li>
               <li className="pokemon-attribute">
-                name: {this.props.pokemon.name}
+                Height: {this.props.pokemon.height}
               </li>
               <li className="pokemon-attribute">
-                img: {this.props.pokemon.img}
+                Weight: {this.props.pokemon.weight}
               </li>
               <li className="pokemon-attribute">
-                height: {this.props.pokemon.height}
+                Candy: {this.props.pokemon.candy}
               </li>
               <li className="pokemon-attribute">
-                weight: {this.props.pokemon.weight}
+                Candy Count: {this.props.pokemon.candy_count}
               </li>
               <li className="pokemon-attribute">
-                candy: {this.props.pokemon.candy}
+                Egg: {this.props.pokemon.egg}
               </li>
               <li className="pokemon-attribute">
-                candy_count: {this.props.pokemon.candy_count}
+                Avg Spawns: {this.props.pokemon.avg_spawns}
               </li>
               <li className="pokemon-attribute">
-                egg: {this.props.pokemon.egg}
-              </li>
-              <li className="pokemon-attribute">
-                avg_spawns: {this.props.pokemon.avg_spawns}
-              </li>
-              <li className="pokemon-attribute">
-                spawn_time: {this.props.pokemon.spawn_time}
+                Spawn Time: {this.props.pokemon.spawn_time}
               </li>
             </ul>
           </div>

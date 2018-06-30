@@ -11,6 +11,7 @@
 const express = require('express');
 const methodOverride = require('method-override');
 const pg = require('pg');
+const sha256 = require('js-sha256');
 
 // Initialise postgres client
 const config = {
@@ -74,10 +75,10 @@ app.post('/users/new', (request, response) => {
             response.send('db error: '+ err.message)
         }else{
             let user_id = queryResult.rows[0].id;
-            let user_name = queryResult.rows[0].name;
+            let userName = queryResult.rows[0].name;
             response.cookie('logged_in', 'true');
             response.cookie('user_id', user_id);
-            response.send( "created user " + user_name + " with id: " + user_id )
+            response.send( "Created New PokeMaster with ID: " + user_id )
         }
     });
 });
@@ -196,7 +197,7 @@ const postPokemon = (request, response) => {
       console.log('query result:', result);
 
       // redirect to home page
-      response.redirect('/');
+      response.redirect('/pokemon');
     }
   });
 };
