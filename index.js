@@ -14,15 +14,12 @@ const pg = require('pg');
 
 // Initialise postgres client
 const config = {
-  user: 'ck',
+  user: 'julian',
   host: '127.0.0.1',
   database: 'pokemons',
   port: 5432,
 };
 
-if (config.user === 'ck') {
-	throw new Error("====== UPDATE YOUR DATABASE CONFIGURATION =======");
-};
 
 const pool = new pg.Pool(config);
 
@@ -55,6 +52,91 @@ app.engine('jsx', reactEngine);
  * ===================================
  */
 
+
+/*
+<<============================================================================>>
+<<============================================================================>>
+<< CREATE USER                                                                >>
+<<============================================================================>>
+<<============================================================================>>
+*/
+//<<<< GET CREATE USER FORM >>>>
+app.get('/users/new', (request, response) => {
+    response.render('Register');
+});
+//<<<< CREATE USER FUNCTION >>>>
+app.post('/users/new', (request, response) => {
+    let password = sha256( request.body.password );
+    let queryText = 'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *';
+    const values = [request.body.name, request.body.email, password];
+    pool.query(queryText, values, (err, queryResult) => {
+        if( err ){
+            response.send('db error: '+ err.message)
+        }else{
+            let user_id = queryResult.rows[0].id;
+            let user_name = queryResult.rows[0].name;
+            response.cookie('logged_in', 'true');
+            response.cookie('user_id', user_id);
+            response.send( "created user " + user_name + " with id: " + user_id )
+        }
+    });
+});
+
+
+/*
+<<============================================================================>>
+<<============================================================================>>
+<< USER LOGIN & LOGOUT                                                        >>
+<<============================================================================>>
+<<============================================================================>>
+*/
+//<<<< LOGIN FORM >>>>
+app.get('/users/login', (request, response) => {
+    response.render('Login');
+});
+//<<<< LOGIN FUNCTION >>>>
+app.post('/users/login', (request, response) => {
+    let queryText = 'SELECT * FROM users WHERE email=$1';
+    const values = [request.body.email];
+    pool.query(queryText, values, (err, queryResult) => {
+        if( err ){
+            response.send('db error: '+ err.message)
+        }else{
+            const queryRows = queryResult.rows;
+            console.log( queryRows );
+
+            if( queryRows.length < 1){
+                response.send(401);
+            }else{
+                let db_pass_hash = queryRows[0].password_hash;
+                let request_pass_hash = sha256( request.body.password );
+                if( db_pass_hash ===  request_pass_hash ){
+                    response.cookie('logged_in', 'true');
+                    response.cookie('user_id', queryRows[0].id);
+                    response.send("Welcome "+queryRows[0].email);
+                }else{
+                    response.status(401).send('nope');
+                }
+            }
+        }
+    });
+});
+
+//<<<< LOGOUT FUNCTION >>>>
+app.delete( '/users', (request, response) =>{
+    response.clearCookie('user_id');
+    response.clearCookie('logged_in');
+    response.redirect('/')
+})
+
+
+/*
+<<============================================================================>>
+<<============================================================================>>
+<< QUERY ALL POKEMON                                                          >>
+<<============================================================================>>
+<<============================================================================>>
+*/
  const getRoot = (request, response) => {
   // query database for all pokemon
 
@@ -68,15 +150,24 @@ app.engine('jsx', reactEngine);
       console.log('Query result:', result);
 
       // redirect to home page
-      response.render( 'home', {pokemon: result.rows} );
+      response.render( 'Home', {pokemon: result.rows} );
     }
   });
 }
 
-const getNew = (request, response) => {
-  response.render('new');
-}
 
+/*
+<<============================================================================>>
+<<============================================================================>>
+<< MAKE NEW POKEMON                                                           >>
+<<============================================================================>>
+<<============================================================================>>
+*/
+//<<<< GET FORM >>>>
+const getNew = (request, response) => {
+  response.render('New');
+}
+//<<<< FIND POKEMON BY ID >>>>
 const getPokemon = (request, response) => {
   let id = request.params['id'];
   const queryString = 'SELECT * FROM pokemon WHERE id = ' + id + ';';
@@ -87,16 +178,16 @@ const getPokemon = (request, response) => {
       console.log('Query result:', result);
 
       // redirect to home page
-      response.render( 'pokemon', {pokemon: result.rows[0]} );
+      response.render( 'Pokemon', {pokemon: result.rows[0]} );
     }
   });
 }
-
+//<<<< SAVE NEW POKEMON >>>>
 const postPokemon = (request, response) => {
   let params = request.body;
   
-  const queryString = 'INSERT INTO pokemon(name, height) VALUES($1, $2);';
-  const values = [params.name, params.height];
+  const queryString = 'INSERT INTO pokemon(id, num, name, image, height, weight) VALUES($1, $2, $3, $4, $5, $6);';
+  const values = [params.id, params.num, params.name, params.img, params.height, params.weight];
 
   pool.query(queryString, values, (err, result) => {
     if (err) {
@@ -110,6 +201,15 @@ const postPokemon = (request, response) => {
   });
 };
 
+
+/*
+<<============================================================================>>
+<<============================================================================>>
+<< EDIT POKEMON                                                               >>
+<<============================================================================>>
+<<============================================================================>>
+*/
+//<<<< GET FORM >>>>
 const editPokemonForm = (request, response) => {
   let id = request.params['id'];
   const queryString = 'SELECT * FROM pokemon WHERE id = ' + id + ';';
@@ -120,16 +220,16 @@ const editPokemonForm = (request, response) => {
       console.log('Query result:', result);
 
       // redirect to home page
-      response.render( 'edit', {pokemon: result.rows[0]} );
+      response.render( 'Edit', {pokemon: result.rows[0]} );
     }
   });
 }
-
+//<<<<  EDIT FUNCTION >>>>
 const updatePokemon = (request, response) => {
   let id = request.params['id'];
   let pokemon = request.body;
-  const queryString = 'UPDATE "pokemon" SET "num"=($1), "name"=($2), "img"=($3), "height"=($4), "weight"=($5) WHERE "id"=($6)';
-  const values = [pokemon.num, pokemon.name, pokemon.img, pokemon.height, pokemon.weight, id];
+  const queryString = 'UPDATE "pokemon" SET "name"=($2), "img"=($3), "height"=($4), "weight"=($5) WHERE "id"=($1)';
+  const values = [pokemon.name, pokemon.img, pokemon.height, pokemon.weight, id];
   console.log(queryString);
   pool.query(queryString, values, (err, result) => {
     if (err) {
@@ -143,13 +243,25 @@ const updatePokemon = (request, response) => {
   });
 }
 
+
+/*
+<<============================================================================>>
+<<============================================================================>>
+<< DELETE POKEMON                                                             >>
+<<============================================================================>>
+<<============================================================================>>
+*/
+//<<<< GET FORM >>>>
 const deletePokemonForm = (request, response) => {
   response.send("COMPLETE ME");
 }
-
+//<<<< DELETE FUNCTION >>>>
 const deletePokemon = (request, response) => {
   response.send("COMPLETE ME");
 }
+
+
+
 /**
  * ===================================
  * Routes

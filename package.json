@@ -13,5 +13,8 @@
     "pg": "^7.4.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.11"
   }
 }

@@ -7,7 +7,7 @@ class NotFound extends React.Component {
       <html>
         <head />
         <body>
-          <h1>Not Found!</h1>
+          <h1>The page you have requested is not found!</h1>
         </body>
       </html>
     );

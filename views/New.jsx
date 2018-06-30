@@ -4,29 +4,32 @@ class New extends React.Component {
   render() {
     return (
       <html>
-        <head />
+        <head/>
         <body>
+        <div className="container">
+          <h2>ADD A NEWLY DISCOVERED POKEMON!</h2>
           <form className="pokemon-form" method="POST" action="/pokemons">
             <div className="pokemon-attribute">
-              id:<input name="id" type="text" />
+              <input name="id" type="text" placeholder="NEW POKEMON ID"/>
             </div>
             <div className="pokemon-attribute">
-              num:<input name="num" type="text" />
+              <input name="num" type="text" placeholder="NEW POKEMON NUMBER"/>
             </div>
             <div className="pokemon-attribute">
-              name:<input name="name" type="text" />
+              <input name="name" type="text" placeholder="NEW POKEMON NAME"/>
             </div>
             <div className="pokemon-attribute">
-              img:<input name="img" type="text" />
+              <input name="img" type="text" placeholder="NEW POKEMON IMAGE LINK"/>
             </div>
             <div className="pokemon-attribute">
-              height:<input name="height" type="text" />
+              <input name="height" type="text" placeholder="NEW POKEMON HEIGHT"/>
             </div>
             <div className="pokemon-attribute">
-              weight:<input name="weight" type="text" />
+              <input name="weight" type="text" placeholder="NEW POKEMON WEIGHT"/>
             </div>
             <input type="submit" value="Submit" />
           </form>
+        </div>
         </body>
       </html>
     );
