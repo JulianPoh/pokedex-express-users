@@ -12,6 +12,7 @@ const express = require('express');
 const methodOverride = require('method-override');
 const pg = require('pg');
 const sha256 = require('js-sha256');
+const cookieParser = require('cookie-parser')
 
 // Initialise postgres client
 const config = {
@@ -39,6 +40,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+app.use(cookieParser());
 
 
 // Set react-views to be the default view engine
@@ -71,14 +73,14 @@ app.post('/users/new', (request, response) => {
     let queryText = 'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *';
     const values = [request.body.name, request.body.email, password];
     pool.query(queryText, values, (err, queryResult) => {
-        if( err ){
+        if ( err ){
             response.send('db error: '+ err.message)
         }else{
             let user_id = queryResult.rows[0].id;
             let userName = queryResult.rows[0].name;
             response.cookie('logged_in', 'true');
             response.cookie('user_id', user_id);
-            response.send( "Created New PokeMaster with ID: " + user_id )
+            response.send( "Created New Pokemon Agent " + user_id )
         }
     });
 });
@@ -114,9 +116,9 @@ app.post('/users/login', (request, response) => {
                 if( db_pass_hash ===  request_pass_hash ){
                     response.cookie('logged_in', 'true');
                     response.cookie('user_id', queryRows[0].id);
-                    response.send("Welcome "+queryRows[0].email);
+                    response.send("Welcome Pokemon Agent "+queryRows[0].id);
                 }else{
-                    response.status(401).send('nope');
+                    response.status(401).send('Access Denied');
                 }
             }
         }
@@ -186,10 +188,14 @@ const getPokemon = (request, response) => {
 //<<<< SAVE NEW POKEMON >>>>
 const postPokemon = (request, response) => {
   let params = request.body;
+  if (request.cookies['logged_in'] === 'true') {
+      const queryString = 'INSERT INTO pokemon(id, num, name, image, height, weight, user_id) VALUES($1, $2, $3, $4, $5, $6, $7);';
+      const values = [params.id, params.num, params.name, params.img, params.height, params.weight, params.user_id]; 
+  } else {
+      const queryString = 'INSERT INTO pokemon(id, num, name, image, height, weight) VALUES($1, $2, $3, $4, $5, $6);';
+      const values = [params.id, params.num, params.name, params.img, params.height, params.weight]; 
+  }
   
-  const queryString = 'INSERT INTO pokemon(id, num, name, image, height, weight) VALUES($1, $2, $3, $4, $5, $6);';
-  const values = [params.id, params.num, params.name, params.img, params.height, params.weight];
-
   pool.query(queryString, values, (err, result) => {
     if (err) {
       console.log('query error:', err.stack);

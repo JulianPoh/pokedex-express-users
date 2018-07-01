@@ -7,7 +7,7 @@ class Newuser extends React.Component {
         <head />
         <body>
         <div className="container">
-          <h2>Register a New Pokemon Master!</h2>
+          <h2>Register a New Pokemon Agent!</h2>
           <form className="user-form" method="POST" action="/users/new">
             <div className="user-attribute">
               <input name="id" type="text" placeholder="New User Name"/>

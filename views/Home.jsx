@@ -8,6 +8,10 @@ class Home extends React.Component {
         <head />
         <body>
           <h1>Welcome to The Pokedex</h1>
+          <a href="/users/login">USER LOGIN</a>
+          <br/>
+          <a href="/users/new">CREATE NEW USER</a>
+          <br/>
           <ul>
             {this.props.pokemon.map(pokemon => (
               <li key={pokemon.id}>
